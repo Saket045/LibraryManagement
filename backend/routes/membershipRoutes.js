@@ -7,19 +7,25 @@ const router = express.Router();
 // Add membership
 router.post("/", authenticateUser, async (req, res) => {
   try {
-    const userId=req.user._id;
+    const userId = req.user._id;
     const { durationMonths } = req.body;
-    const expiryDate = new Date();
-    expiryDate.setMonth(expiryDate.getMonth() + durationMonths);
 
-    const membership = new Membership({ userId, expiryDate, status: "active" });
+    // Get the current date
+    const startDate = new Date(); 
+
+    // Add months correctly by creating a new date instance
+    const expiryDate = new Date(startDate.getFullYear(), startDate.getMonth() + durationMonths, startDate.getDate());
+
+    // Create membership
+    const membership = new Membership({ userId, startDate, expiryDate, status: "active" });
     await membership.save();
-    
+
     res.status(201).json(membership);
   } catch (error) {
     res.status(500).json({ message: "Error creating membership", error });
   }
 });
+
 
 // Update membership (Extend or cancel)
 router.put("/:id", authenticateUser, async (req, res) => {
@@ -31,6 +37,7 @@ router.put("/:id", authenticateUser, async (req, res) => {
 
     if (durationMonths) {
       membership.expiryDate.setMonth(membership.expiryDate.getMonth() + durationMonths);
+      membership.status = "active";
     } else {
       membership.status = "expired";
     }

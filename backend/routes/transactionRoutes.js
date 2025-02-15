@@ -34,9 +34,10 @@ router.post("/return/:id", authenticateUser, async (req, res) => {
   try {
     const transaction = await Transaction.findById(req.params.id);
     if (!transaction || transaction.status === "returned") return res.status(400).json({ message: "Invalid transaction" });
-
+    
     transaction.actualReturnDate = new Date();
     transaction.status = "returned";
+    transaction
 
     const book = await Book.findById(transaction.bookId);
     book.availableCopies += 1;
