@@ -1,52 +1,91 @@
 const express = require("express");
-const Membership = require("../models/MemberShip");
-const { authenticateUser } = require("../middleware/auth");
+const Transaction = require("../models/Transaction");
+const Book = require("../models/Book");
+const Membership = require("../models/Membership");
+const User= require ("../models/User")
+const { authenticateUser , authenticateAdmin } = require("../middleware/auth");
 
 const router = express.Router();
 
-// Add membership
+// Create Membership Route
 router.post("/", authenticateUser, async (req, res) => {
   try {
     const userId = req.user._id;
-    const { durationMonths } = req.body;
+    const { name, contactNumber, startDate, membership } = req.body;
 
-    // Get the current date
-    const startDate = new Date(); 
+    if (!name || !contactNumber || !startDate || !membership) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
 
-    // Add months correctly by creating a new date instance
-    const expiryDate = new Date(startDate.getFullYear(), startDate.getMonth() + durationMonths, startDate.getDate());
+    // Calculate expiry date
+    const start = new Date(startDate);
+    const expiryDate = new Date(start.getFullYear(), start.getMonth() + parseInt(membership), start.getDate());
 
-    // Create membership
-    const membership = new Membership({ userId, startDate, expiryDate, status: "active" });
-    await membership.save();
+    // Create new membership record
+    const newMembership = new Membership({
+      userId,
+      name,
+      contactNumber,
+      startDate: start,
+      expiryDate,
+      status: "active",
+    });
 
-    res.status(201).json(membership);
+    await newMembership.save();
+    res.status(201).json(newMembership);
   } catch (error) {
     res.status(500).json({ message: "Error creating membership", error });
   }
 });
 
-
-// Update membership (Extend or cancel)
-router.put("/:id", authenticateUser, async (req, res) => {
+// Update Membership Route
+router.get("/:userId", async (req, res) => {
   try {
-    const { durationMonths } = req.body;
-    const membership = await Membership.findById(req.params.id);
+    const membership = await Membership.findOne({ userId: req.params.userId });
 
-    if (!membership) return res.status(404).json({ message: "Membership not found" });
-
-    if (durationMonths) {
-      membership.expiryDate.setMonth(membership.expiryDate.getMonth() + durationMonths);
-      membership.status = "active";
-    } else {
-      membership.status = "expired";
+    if (!membership) {
+      return res.status(404).json({ message: "Membership not found" });
     }
 
-    await membership.save();
     res.json(membership);
   } catch (error) {
-    res.status(500).json({ message: "Error updating membership", error });
+    console.error("Error fetching membership:", error);
+    res.status(500).json({ message: "Server error" });
   }
 });
+
+// Update Membership Expiry Date
+router.put("/:userId", async (req, res) => {
+  const { duration } = req.body; // Duration in months
+  try {
+    const membership = await Membership.findOne({ userId: req.params.userId });
+
+    if (!membership) {
+      return res.status(404).json({ message: "Membership not found" });
+    }
+
+    const newExpiryDate = new Date(membership.expiryDate);
+    newExpiryDate.setMonth(newExpiryDate.getMonth() + parseInt(duration));
+
+    membership.expiryDate = newExpiryDate;
+    membership.status = newExpiryDate > new Date() ? "active" : "expired";
+
+    await membership.save();
+    res.json({ message: "Membership updated successfully", membership });
+  } catch (error) {
+    console.error("Error updating membership:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.get("/", authenticateUser, async (req, res) => {
+  try {
+    const memberships = await Membership.find();
+    res.json(memberships);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching memberships", error });
+  }
+});
+
 
 module.exports = router;

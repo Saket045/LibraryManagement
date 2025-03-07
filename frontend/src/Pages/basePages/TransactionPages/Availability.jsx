@@ -1,39 +1,25 @@
+/* eslint-disable no-unused-vars */
 import { useState } from "react";
-
-const books = [
-  { name: "Book One", author: "Author A", available: "Yes" },
-  { name: "Book Two", author: "Author B", available: "No" },
-  { name: "Book Three", author: "Author A", available: "Yes" },
-  { name: "Book Four", author: "Author C", available: "No" },
-  { name: "Book Five", author: "Author D", available: "Yes" },
-  { name: "Book Six", author: "Author E", available: "No" },
-  { name: "Book Seven", author: "Author F", available: "Yes" },
-  { name: "Book Eight", author: "Author G", available: "No" },
-  { name: "Book Nine", author: "Author H", available: "Yes" },
-  { name: "Book Ten", author: "Author I", available: "No" },
-  { name: "Book Eleven", author: "Author J", available: "Yes" },
-  { name: "Book Twelve", author: "Author K", available: "No" },
-  { name: "Book Thirteen", author: "Author L", available: "Yes" },
-  { name: "Book Fourteen", author: "Author M", available: "No" },
-  { name: "Book Fifteen", author: "Author N", available: "Yes" },
-  { name: "Book Sixteen", author: "Author O", available: "No" },
-  { name: "Book Seventeen", author: "Author P", available: "Yes" },
-  { name: "Book Eighteen", author: "Author Q", available: "No" },
-  { name: "Book Nineteen", author: "Author R", available: "Yes" },
-  { name: "Book Twenty", author: "Author S", available: "No" }
-];
 
 const Availability = () => {
   const [query, setQuery] = useState("");
-  const [filteredBooks, setFilteredBooks] = useState(books);
+  const [filteredBooks, setFilteredBooks] = useState([]);
+  const [error, setError] = useState("");
 
-  const handleSearch = () => {
-    const results = books.filter(
-      (book) =>
-        book.name.toLowerCase().includes(query.toLowerCase()) ||
-        book.author.toLowerCase().includes(query.toLowerCase())
-    );
-    setFilteredBooks(results);
+  const handleSearch = async () => {
+    if (!query.trim()) return;
+    setError("");
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/books/search/${query}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch books");
+      }
+      const data = await response.json();
+      setFilteredBooks(data);
+    } catch (err) {
+      setError("Error fetching books. Please try again.");
+    }
   };
 
   return (
@@ -42,7 +28,7 @@ const Availability = () => {
       <div className="flex gap-2 mb-4">
         <input
           type="text"
-          placeholder="Search by book name or author name"
+          placeholder="Search by book name"
           className="border p-2 w-full rounded-lg"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -55,7 +41,8 @@ const Availability = () => {
         </button>
       </div>
 
-      {/* Table for structured display */}
+      {error && <p className="text-red-500 mt-4 text-center">{error}</p>}
+
       {filteredBooks.length > 0 ? (
         <div className="overflow-x-auto">
           <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow-md">
@@ -63,23 +50,13 @@ const Availability = () => {
               <tr className="bg-gray-200">
                 <th className="p-3 border border-gray-300">Book Name</th>
                 <th className="p-3 border border-gray-300">Author</th>
-                <th className="p-3 border border-gray-300">Availability</th>
               </tr>
             </thead>
             <tbody>
               {filteredBooks.map((book, index) => (
                 <tr key={index} className="text-center border-t">
-                  <td className="p-3 border border-gray-300">{book.name}</td>
+                  <td className="p-3 border border-gray-300">{book.bookName}</td>
                   <td className="p-3 border border-gray-300">{book.author}</td>
-                  <td
-                    className={`p-3 border border-gray-300 font-bold ${
-                      book.available === "Yes"
-                        ? "text-green-600"
-                        : "text-red-600"
-                    }`}
-                  >
-                    {book.available}
-                  </td>
                 </tr>
               ))}
             </tbody>

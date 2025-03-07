@@ -1,52 +1,115 @@
 import { useState } from "react";
 
 const IssueBook = () => {
-  const [bookName, setBookName] = useState("");
-  const [author, setAuthor] = useState("");
-  const [issueDate, setIssueDate] = useState("");
-  const [returnDate, setReturnDate] = useState("");
+  const [formData, setFormData] = useState({
+    bookName: "",
+    author: "",
+    issueDate: new Date().toISOString().split("T")[0], // Default to today
+    returnDate: new Date(new Date().setDate(new Date().getDate() + 15))
+      .toISOString()
+      .split("T")[0], // Default to 15 days later
+  });
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    console.log(formData);
+
+    try {
+      const response = await fetch("/api/transactions/issue", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // If authentication is required
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Book issued successfully!");
+        setFormData({
+          bookName: "",
+          author: "",
+          issueDate: new Date().toISOString().split("T")[0],
+          returnDate: new Date(new Date().setDate(new Date().getDate() + 15))
+            .toISOString()
+            .split("T")[0],
+        }); // Reset form
+      } else {
+        alert(`Error: ${data.message}`);
+      }
+    } catch (error) {
+      console.error("Error issuing book:", error);
+      alert("An error occurred while issuing the book.");
+    }
+  };
 
   return (
-    <div className="container ml-8 mt-8 w-3/4 p-4 border rounded-lg shadow-lg ">
-      <h2 className="text-2xl font-bold mb-4">Book Issue</h2>
-      <form className="space-y-4">
+    <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow-md rounded-lg">
+      <h2 className="text-xl font-bold mb-4">Issue a Book</h2>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        {/* Book Name */}
         <div>
-          <label className="block font-semibold">Enter Book Name</label>
+          <label className="block text-gray-700">Book Name:</label>
           <input
             type="text"
-            className="border p-2 w-full rounded-lg"
-            value={bookName}
-            onChange={(e) => setBookName(e.target.value)}
+            name="bookName"
+            value={formData.bookName}
+            onChange={handleChange}
+            className="w-full p-2 border rounded mt-1"
+            required
           />
         </div>
+
+        {/* Author */}
         <div>
-          <label className="block font-semibold">Enter Author</label>
+          <label className="block text-gray-700">Author:</label>
           <input
             type="text"
-            className="border p-2 w-full rounded-lg"
-            value={author}
-            onChange={(e) => setAuthor(e.target.value)}
+            name="author"
+            value={formData.author}
+            onChange={handleChange}
+            className="w-full p-2 border rounded mt-1"
+            required
           />
         </div>
+
+        {/* Issue Date */}
         <div>
-          <label className="block font-semibold">Issue Date</label>
+          <label className="block text-gray-700">Issue Date:</label>
           <input
             type="date"
-            className="border p-2 w-full rounded-lg"
-            value={issueDate}
-            onChange={(e) => setIssueDate(e.target.value)}
+            name="issueDate"
+            value={formData.issueDate}
+            onChange={handleChange}
+            className="w-full p-2 border rounded mt-1"
+            required
           />
         </div>
+
+        {/* Return Date */}
         <div>
-          <label className="block font-semibold">Return Date</label>
+          <label className="block text-gray-700">Return Date:</label>
           <input
             type="date"
-            className="border p-2 w-full rounded-lg"
-            value={returnDate}
-            onChange={(e) => setReturnDate(e.target.value)}
+            name="returnDate"
+            value={formData.returnDate}
+            onChange={handleChange}
+            className="w-full p-2 border rounded mt-1"
+            required
           />
         </div>
-        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-lg">
+
+        {/* Submit Button */}
+        <button
+          type="submit"
+          className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition-all"
+        >
           Issue Book
         </button>
       </form>

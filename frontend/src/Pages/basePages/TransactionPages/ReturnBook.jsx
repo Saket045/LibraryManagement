@@ -1,54 +1,108 @@
 import { useState } from "react";
 
 const ReturnBook = () => {
-  const [isbn, setIsbn] = useState("");
-  const [bookName, setBookName] = useState("");
-  const [author, setAuthor] = useState("");
-  const [ReturnDate, setReturnDate] = useState("");
+  const [formData, setFormData] = useState({
+    isbn: "",
+    bookName: "",
+    author: "",
+    returnDate: new Date().toISOString().split("T")[0], // Default to today
+  });
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch("/api/transactions/return", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // If authentication is required
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Book returned successfully!");
+        setFormData({
+          isbn: "",
+          bookName: "",
+          author: "",
+          returnDate: new Date().toISOString().split("T")[0],
+        }); // Reset form
+      } else {
+        alert(`Error: ${data.message}`);
+      }
+    } catch (error) {
+      console.error("Error returning book:", error);
+      alert("An error occurred while returning the book.");
+    }
+  };
 
   return (
-    <div className="mt-8 ml-8 w-3/4 p-4">
-      <h2 className="text-2xl font-bold mb-4">Book Return</h2>
-      <form className="space-y-4">
+    <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow-md rounded-lg">
+      <h2 className="text-xl font-bold mb-4">Return a Book</h2>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        {/* ISBN */}
         <div>
-          <label className="block font-bold">ISBN (Required)</label>
+          <label className="block text-gray-700">ISBN:</label>
           <input
             type="text"
-            className="border p-2 w-full rounded-lg"
-            value={isbn}
-            onChange={(e) => setIsbn(e.target.value)}
+            name="isbn"
+            value={formData.isbn}
+            onChange={handleChange}
+            className="w-full p-2 border rounded mt-1"
             required
           />
         </div>
+
+        {/* Book Name */}
         <div>
-          <label className="block font-bold">Enter Book Name</label>
+          <label className="block text-gray-700">Book Name (Optional):</label>
           <input
             type="text"
-            className="border p-2 w-full rounded-lg"
-            value={bookName}
-            onChange={(e) => setBookName(e.target.value)}
+            name="bookName"
+            value={formData.bookName}
+            onChange={handleChange}
+            className="w-full p-2 border rounded mt-1"
           />
         </div>
+
+        {/* Author */}
         <div>
-          <label className="block font-bold">Enter Author</label>
+          <label className="block text-gray-700">Author (Optional):</label>
           <input
             type="text"
-            className="border p-2 w-full rounded-lg"
-            value={author}
-            onChange={(e) => setAuthor(e.target.value)}
+            name="author"
+            value={formData.author}
+            onChange={handleChange}
+            className="w-full p-2 border rounded mt-1"
           />
         </div>
+
+        {/* Return Date */}
         <div>
-          <label className="block font-bold">Return Date</label>
+          <label className="block text-gray-700">Return Date:</label>
           <input
             type="date"
-            className="border p-2 w-full rounded-lg"
-            value={ReturnDate}
-            onChange={(e) => setReturnDate(e.target.value)}
+            name="returnDate"
+            value={formData.returnDate}
+            onChange={handleChange}
+            className="w-full p-2 border rounded mt-1"
+            required
           />
         </div>
-       
-        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-lg">
+
+        {/* Submit Button */}
+        <button
+          type="submit"
+          className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600 transition-all"
+        >
           Return Book
         </button>
       </form>

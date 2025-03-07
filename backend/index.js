@@ -25,9 +25,6 @@ app.use("/api/books", bookRoutes);
 app.use("/api/transactions", transactionRoutes);
 app.use("/api/memberships", membershipRoutes);
 
-app.get("/", (req, res) => {
-  res.send("Library Management System API is running ");
-});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(` Server running on port ${PORT}`));

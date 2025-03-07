@@ -1,19 +1,39 @@
 const express = require("express");
+const Transaction = require("../models/Transaction");
 const Book = require("../models/Book");
-const { authenticateAdmin } = require("../middleware/auth");
+const Membership = require("../models/Membership");
+const User= require ("../models/User")
+const { authenticateUser , authenticateAdmin } = require("../middleware/auth");
 
 const router = express.Router();
 
 // Add a new book (Admin only)
 router.post("/", authenticateAdmin, async (req, res) => {
   try {
-    const book = new Book(req.body);
-    await book.save();
-    res.status(201).json(book);
+    const { isbn, bookName, author, category, copies } = req.body;
+
+    // Validate required fields
+    if (!isbn || !bookName || !category || !copies) {
+      return res.status(400).json({ message: "All fields are required." });
+    }
+
+    // Create a new book document
+    const newBook = new Book({
+      isbn,
+      bookName,
+      author,
+      category,
+      copies,
+    });
+
+    // Save to the database
+    await newBook.save();
+    res.status(201).json({ message: "Book added successfully", book: newBook });
   } catch (error) {
     res.status(500).json({ message: "Error adding book", error });
   }
 });
+
 
 // Get all books
 router.get("/", async (req, res) => {
@@ -25,24 +45,28 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Get a book by ID
-router.get("/:id", async (req, res) => {
+router.get("/:bookName", async (req, res) => {
   try {
-    const book = await Book.findById(req.params.id);
+    const book = await Book.findOne({ bookName: req.params.bookName });
     if (!book) return res.status(404).json({ message: "Book not found" });
     res.json(book);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching book", error });
+    res.status(500).json({ message: "Server Error", error });
   }
 });
 
-// Update a book (Admin only)
-router.put("/:id", authenticateAdmin, async (req, res) => {
+router.put("/:bookName", async (req, res) => {
+  const { copies, status } = req.body;
   try {
-    const updatedBook = await Book.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.json(updatedBook);
+    const updatedBook = await Book.findOneAndUpdate(
+      { bookName: req.params.bookName },
+      { copies, status },
+      { new: true }
+    );
+    if (!updatedBook) return res.status(404).json({ message: "Book not found" });
+    res.json({ message: "Book updated successfully", updatedBook });
   } catch (error) {
-    res.status(500).json({ message: "Error updating book", error });
+    res.status(500).json({ message: "Server Error", error });
   }
 });
 
@@ -55,4 +79,24 @@ router.delete("/:id", authenticateAdmin, async (req, res) => {
     res.status(500).json({ message: "Error deleting book", error });
   }
 });
+
+router.get("/search/:bookName", async (req, res) => {
+  try {
+    const { bookName } = req.params;
+
+    if (!bookName) {
+      return res.status(400).json({ message: "Book name parameter is required" });
+    }
+
+    const books = await Book.find({
+      bookName: { $regex: bookName, $options: "i" }
+    });
+
+    res.json(books);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching books", error });
+  }
+});
+
+
 module.exports = router;

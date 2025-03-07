@@ -4,13 +4,13 @@ import { setPage } from "../../../redux/slices/pageSlice";
 import Listofbooks from "./Listofbooks";
 import Listofmembers from "./Listofmembers";
 import ActiveIssues from "./ActiveIssues";
-import OverdueReturns from "./OverdueReturns";
+// import OverdueReturns from "./OverdueReturns";
 
 const reports = [
   { name: "Master List of Books" },
   { name: "Master List of Memberships" },
   { name: "Active Issues"},
-  { name: "Overdue Returns" },
+  // { name: "Overdue Returns" },
 ];
 
 const ReportsPage = () => {
@@ -34,7 +34,7 @@ const ReportsPage = () => {
            {page==="Master List of Books" && <Listofbooks/>}
            {page==="Master List of Memberships" && <Listofmembers/>}
            {page==="Active Issues" && <ActiveIssues/>}
-           {page==="Overdue Returns" && <OverdueReturns/>}
+           {/* {page==="Overdue Returns" && <OverdueReturns/>} */}
     </div>
     </div>
   );

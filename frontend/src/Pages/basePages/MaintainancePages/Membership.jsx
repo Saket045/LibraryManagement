@@ -11,7 +11,7 @@ const Membership = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
+
     // Automatically calculate end date based on membership selection
     if (name === "startDate" || name === "membership") {
       let startDate = name === "startDate" ? value : formData.startDate;
@@ -29,9 +29,40 @@ const Membership = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Membership Data Submitted:", formData);
+    if(formData.contactNumber.length!==10)
+    {
+      alert("Invalid contact");
+      return ;
+    }
+
+    try {
+      const response = await fetch("/api/memberships", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer YOUR_AUTH_TOKEN`, // Replace with actual auth token if needed
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          contactNumber: formData.contactNumber,
+          startDate: formData.startDate,
+          membership: formData.membership,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Membership registered successfully!");
+      } else {
+        alert(`Error: ${data.message}`);
+      }
+    } catch (error) {
+      console.error("Error registering membership:", error);
+      alert("An error occurred while registering the membership.");
+    }
   };
 
   return (
@@ -39,7 +70,7 @@ const Membership = () => {
       <h2 className="text-xl font-bold mb-4">Membership Registration</h2>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         
-        {/* Name */}
+    
         <div>
           <label className="block text-gray-700">Name:</label>
           <input
@@ -52,7 +83,6 @@ const Membership = () => {
           />
         </div>
 
-        {/* Contact Number */}
         <div>
           <label className="block text-gray-700">Contact Number:</label>
           <input
@@ -65,7 +95,6 @@ const Membership = () => {
           />
         </div>
 
-        {/* Start Date */}
         <div>
           <label className="block text-gray-700">Start Date:</label>
           <input

@@ -6,7 +6,7 @@ const generateTokenAndSetCookie=require("../utils/generateToken")
 
 const router = express.Router();
 
-router.post("/register", async (req, res) => {
+router.post("/signup", async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
 
@@ -17,7 +17,12 @@ router.post("/register", async (req, res) => {
     const newUser = new User({ name, email, password: hashedPassword, role });
     generateTokenAndSetCookie(newUser._id,res);
     await newUser.save();
-    res.status(201).json({ message: "User registered successfully" });
+    res.status(201).json({
+      id:newUser._id,
+      name:newUser.name,
+      email:newUser.email,
+      role:newUser.role
+    });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }
@@ -46,7 +51,7 @@ catch(error){
 
 router.post("/logout", async (req, res) => {
     try {    
-      res.clearCookie("jwt");
+      res.cookie("jwt", "", { maxAge: 0 });
       res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
       console.log("Error in logout controller", error.message);

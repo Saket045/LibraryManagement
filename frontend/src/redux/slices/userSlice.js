@@ -9,7 +9,6 @@ const authSlice= createSlice({
         user:{
             name:"",
             email:"",
-            password:"",
             role:""
         }
     },

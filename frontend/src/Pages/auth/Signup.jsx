@@ -28,9 +28,9 @@ const SignUp = () => {
     try {
       dispatch(setLoading(true));
       e.preventDefault();
-
+      console.log("hi");
       // Make API call to signup
-      const response = await fetch('/api/auth/register', {
+      const response = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -42,12 +42,10 @@ const SignUp = () => {
         throw new Error();
       }
       const data = await response.json();
-
-      // Dispatch actions for login and set user state
+      console.log(data);
       dispatch(setUser(data));
       dispatch(login());
 
-      // Redirect to home after successful signup
       navigate("/");
 
       console.log(data);

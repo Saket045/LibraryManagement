@@ -10,7 +10,7 @@ const data = [
 ];
 
 const AdminPage = () => {
-  const role=useSelector((state)=>state.auth.user.user.role)
+  const role=useSelector((state)=>state.auth.user.role)
   return (
     <div className="container mx-auto p-4">
       <nav className="flex justify-around mb-4">

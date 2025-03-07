@@ -1,10 +1,22 @@
-const books = [
-  { isbn: "978-3-16-148410-0", name: "Book One", author: "Author A", category: "Fiction", status: "Available" },
-  { isbn: "978-1-23-456789-7", name: "Book Two", author: "Author B", category: "Science", status: "Checked Out" },
-  { isbn: "978-0-12-345678-9", name: "Book Three", author: "Author C", category: "History", status: "Available" }
-];
+import { useState, useEffect } from "react";
 
 const Listofbooks = () => {
+  const [books, setBooks] = useState([]);
+
+  useEffect(() => {
+    const fetchBooks = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/books"); // Adjust API URL as needed
+        const data = await response.json();
+        setBooks(data);
+      } catch (error) {
+        console.error("Error fetching books:", error);
+      }
+    };
+
+    fetchBooks();
+  }, []);
+
   return (
     <div className="container mx-auto p-4">
       <h2 className="text-2xl font-bold mb-4">List of Books</h2>
@@ -20,15 +32,23 @@ const Listofbooks = () => {
             </tr>
           </thead>
           <tbody>
-            {books.map((book, index) => (
-              <tr key={index} className="hover:bg-gray-100">
-                <td className="py-2 px-4 border">{book.isbn}</td>
-                <td className="py-2 px-4 border">{book.name}</td>
-                <td className="py-2 px-4 border">{book.author}</td>
-                <td className="py-2 px-4 border">{book.category}</td>
-                <td className="py-2 px-4 border">{book.status}</td>
+            {books.length > 0 ? (
+              books.map((book, index) => (
+                <tr key={index} className="hover:bg-gray-100">
+                  <td className="py-2 px-4 border">{book.isbn}</td>
+                  <td className="py-2 px-4 border">{book.bookName}</td>
+                  <td className="py-2 px-4 border">{book.author}</td>
+                  <td className="py-2 px-4 border">{book.category}</td>
+                  <td className="py-2 px-4 border">{book.status}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="5" className="py-2 px-4 border text-center">
+                  No books available
+                </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>

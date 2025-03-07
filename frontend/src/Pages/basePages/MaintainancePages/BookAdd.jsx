@@ -4,6 +4,7 @@ const BookAdd = () => {
   const [formData, setFormData] = useState({
     isbn: "",
     bookName: "",
+    author: "",
     category: "",
     copies: "",
   });
@@ -12,9 +13,30 @@ const BookAdd = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form Data Submitted:", formData);
+
+    try {
+      const response = await fetch("/api/books", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Book added successfully!");
+        setFormData({ isbn: "", bookName: "", author: "", category: "", copies: "" }); // Reset form
+      } else {
+        alert(`Error: ${data.message}`);
+      }
+    } catch (error) {
+      console.error("Error adding book:", error);
+      alert("An error occurred while adding the book.");
+    }
   };
 
   return (
@@ -47,23 +69,29 @@ const BookAdd = () => {
           />
         </div>
 
+        {/* Author */}
+        <div>
+          <label className="block text-gray-700">Author:</label>
+          <input
+            type="text"
+            name="author"
+            value={formData.author}
+            onChange={handleChange}
+            className="w-full p-2 border rounded mt-1"
+            required
+          />
+        </div>
+
         {/* Category */}
         <div>
           <label className="block text-gray-700">Category:</label>
-          <select
+          <input
             name="category"
             value={formData.category}
             onChange={handleChange}
             className="w-full p-2 border rounded mt-1"
             required
-          >
-            <option value="">Select a category</option>
-            <option value="Science">Science</option>
-            <option value="Fiction">Fiction</option>
-            <option value="History">History</option>
-            <option value="Children">Children</option>
-            <option value="Personal Development">Personal Development</option>
-          </select>
+          />
         </div>
 
         {/* Number of Copies */}
