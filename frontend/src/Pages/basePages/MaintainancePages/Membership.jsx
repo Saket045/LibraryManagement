@@ -12,7 +12,6 @@ const Membership = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Automatically calculate end date based on membership selection
     if (name === "startDate" || name === "membership") {
       let startDate = name === "startDate" ? value : formData.startDate;
       let duration = name === "membership" ? value : formData.membership;
@@ -42,7 +41,6 @@ const Membership = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer YOUR_AUTH_TOKEN`, // Replace with actual auth token if needed
         },
         body: JSON.stringify({
           name: formData.name,
@@ -107,7 +105,6 @@ const Membership = () => {
           />
         </div>
 
-        {/* End Date (Auto-calculated) */}
         <div>
           <label className="block text-gray-700">End Date:</label>
           <input
@@ -119,7 +116,6 @@ const Membership = () => {
           />
         </div>
 
-        {/* Membership Duration */}
         <div>
           <label className="block text-gray-700">Membership Duration:</label>
           <div className="flex gap-4 mt-1">
@@ -148,7 +144,6 @@ const Membership = () => {
           </div>
         </div>
 
-        {/* Submit Button */}
         <button
           type="submit"
           className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition-all"

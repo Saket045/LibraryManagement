@@ -7,17 +7,13 @@ const { authenticateUser , authenticateAdmin } = require("../middleware/auth");
 
 const router = express.Router();
 
-// Add a new book (Admin only)
 router.post("/", authenticateAdmin, async (req, res) => {
   try {
     const { isbn, bookName, author, category, copies } = req.body;
 
-    // Validate required fields
     if (!isbn || !bookName || !category || !copies) {
       return res.status(400).json({ message: "All fields are required." });
     }
-
-    // Create a new book document
     const newBook = new Book({
       isbn,
       bookName,
@@ -26,7 +22,6 @@ router.post("/", authenticateAdmin, async (req, res) => {
       copies,
     });
 
-    // Save to the database
     await newBook.save();
     res.status(201).json({ message: "Book added successfully", book: newBook });
   } catch (error) {
@@ -35,7 +30,6 @@ router.post("/", authenticateAdmin, async (req, res) => {
 });
 
 
-// Get all books
 router.get("/", async (req, res) => {
   try {
     const books = await Book.find();
@@ -70,7 +64,6 @@ router.put("/:bookName", async (req, res) => {
   }
 });
 
-// Delete a book (Admin only)
 router.delete("/:id", authenticateAdmin, async (req, res) => {
   try {
     await Book.findByIdAndDelete(req.params.id);

@@ -7,7 +7,6 @@ const { authenticateUser , authenticateAdmin } = require("../middleware/auth");
 
 const router = express.Router();
 
-// Create Membership Route
 router.post("/", authenticateUser, async (req, res) => {
   try {
     const userId = req.user._id;
@@ -16,12 +15,12 @@ router.post("/", authenticateUser, async (req, res) => {
     if (!name || !contactNumber || !startDate || !membership) {
       return res.status(400).json({ message: "All fields are required" });
     }
-
-    // Calculate expiry date
+  const member = await User.findOne({name:name});
+  if(!member) return res.status(404).json({msg:"Mmeber doesnt exist"});
+    
     const start = new Date(startDate);
     const expiryDate = new Date(start.getFullYear(), start.getMonth() + parseInt(membership), start.getDate());
 
-    // Create new membership record
     const newMembership = new Membership({
       userId,
       name,
@@ -38,7 +37,6 @@ router.post("/", authenticateUser, async (req, res) => {
   }
 });
 
-// Update Membership Route
 router.get("/:userId", async (req, res) => {
   try {
     const membership = await Membership.findOne({ userId: req.params.userId });
@@ -54,9 +52,8 @@ router.get("/:userId", async (req, res) => {
   }
 });
 
-// Update Membership Expiry Date
 router.put("/:userId", async (req, res) => {
-  const { duration } = req.body; // Duration in months
+  const { duration } = req.body; 
   try {
     const membership = await Membership.findOne({ userId: req.params.userId });
 
@@ -68,7 +65,6 @@ router.put("/:userId", async (req, res) => {
     newExpiryDate.setMonth(newExpiryDate.getMonth() + parseInt(duration));
 
     membership.expiryDate = newExpiryDate;
-    membership.status = newExpiryDate > new Date() ? "active" : "expired";
 
     await membership.save();
     res.json({ message: "Membership updated successfully", membership });

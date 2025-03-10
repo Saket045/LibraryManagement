@@ -5,7 +5,6 @@ const MembershipEdit = () => {
   const [membership, setMembership] = useState(null);
   const [duration, setDuration] = useState("");
 
-  // Fetch Membership by userId
   const fetchMembership = async () => {
     try {
       const response = await fetch(`http://localhost:5000/api/memberships/${userId}`);
@@ -20,7 +19,6 @@ const MembershipEdit = () => {
     }
   };
 
-  // Update Membership Duration
   const updateMembership = async () => {
     if (!duration) {
       alert("Please enter a valid duration.");
@@ -40,7 +38,7 @@ const MembershipEdit = () => {
 
       const data = await response.json();
       alert("Membership updated successfully!");
-      setMembership(data.membership); // Update membership data in state
+      setMembership(data.membership); 
     } catch (error) {
       console.error("Error updating membership:", error);
     }
@@ -50,7 +48,6 @@ const MembershipEdit = () => {
     <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow-md rounded-lg">
       <h2 className="text-xl font-bold mb-4 text-center">Manage Membership</h2>
 
-      {/* Input for userId */}
       <div className="mb-4">
         <label className="block text-gray-700">Enter User ID:</label>
         <input

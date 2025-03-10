@@ -33,8 +33,8 @@ const ActiveIssues = () => {
               <tr key={index} className="hover:bg-gray-100">
                 <td className="py-2 px-4 border">{book._id}</td>
                
-                <td className="py-2 px-4 border">{book.issueDate}</td>
-                <td className="py-2 px-4 border">{book.returnDate}</td>
+                <td className="py-2 px-4 border">{book.issueDate.substring(0,10)}</td>
+                <td className="py-2 px-4 border">{book.returnDate.substring(0,10)}</td>
               </tr>
             ))}
           </tbody>

@@ -5,7 +5,7 @@ const ReturnBook = () => {
     isbn: "",
     bookName: "",
     author: "",
-    returnDate: new Date().toISOString().split("T")[0], // Default to today
+    returnDate: new Date().toISOString().split("T")[0], 
   });
 
   const handleChange = (e) => {
@@ -21,7 +21,6 @@ const ReturnBook = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include", // If authentication is required
         body: JSON.stringify(formData),
       });
 

@@ -29,7 +29,7 @@ const BookAdd = () => {
 
       if (response.ok) {
         alert("Book added successfully!");
-        setFormData({ isbn: "", bookName: "", author: "", category: "", copies: "" }); // Reset form
+        setFormData({ isbn: "", bookName: "", author: "", category: "", copies: "" });
       } else {
         alert(`Error: ${data.message}`);
       }
@@ -43,7 +43,6 @@ const BookAdd = () => {
     <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow-md rounded-lg">
       <h2 className="text-xl font-bold mb-4">Add a New Book</h2>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        {/* ISBN */}
         <div>
           <label className="block text-gray-700">ISBN:</label>
           <input

@@ -4,8 +4,8 @@ const TransactionSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   bookId: { type: mongoose.Schema.Types.ObjectId, ref: "Book", required: true },
   issueDate: { type: Date, default: Date.now },
-  returnDate: { type: Date }, // Expected return date
-  actualReturnDate: { type: Date }, // When the book was actually returned,
+  returnDate: { type: Date }, 
+  actualReturnDate: { type: Date }, 
   delay:{type:Number},
   status: { type: String, enum: ["issued", "returned"], default: "issued" }
 });
